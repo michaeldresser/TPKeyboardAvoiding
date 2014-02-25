@@ -264,7 +264,13 @@ static const int kStateKey;
 }
 
 - (void)TPKeyboardAvoiding_initializeView:(UIView*)view {
-    if ( ([view isKindOfClass:[UITextField class]] || [view isKindOfClass:[UITextView class]]) && (![(id)view delegate] || [(id)view delegate] == self) ) {
+    if ( ([view isKindOfClass:[UITextField class]] || [view isKindOfClass:[UITextView class]])) {
+        
+        id delegate = [(id)view delegate];
+        if (delegate && delegate != self)
+        {
+            [self setPreviousDelegate: delegate forView: view];
+        }
         [(id)view setDelegate:self];
         
         if ( [view isKindOfClass:[UITextField class]] && ((UITextField*)view).returnKeyType == UIReturnKeyDefault ) {
@@ -279,6 +285,203 @@ static const int kStateKey;
             }
         }
     }
+}
+
+static char * kTPKeyboardAvoidingAdditionsDelegate = "TPKeyboardAvoidingAdditionsDelegate";
+
+- (id) getPreviousDelegate: (UIView *) view
+{
+    return objc_getAssociatedObject(view, kTPKeyboardAvoidingAdditionsDelegate);
+}
+
+- (void) setPreviousDelegate: (id) previousDelegate forView: (UIView *) view
+{
+    objc_setAssociatedObject(view, kTPKeyboardAvoidingAdditionsDelegate, previousDelegate, OBJC_ASSOCIATION_ASSIGN);
+}
+
+#pragma mark - Text View Delegate
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textViewShouldBeginEditing: textView];
+    }
+    
+    return  true;
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textViewShouldEndEditing: textView];
+    }
+    
+    return  true;
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textViewDidBeginEditing: textView];
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textViewDidEndEditing: textView];
+    }
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textView: textView shouldChangeTextInRange: range replacementText: text];
+    }
+    
+    return true;
+}
+
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textViewDidChange: textView];
+    }
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textViewDidChangeSelection: textView];
+    }
+}
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange
+{
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textView: textView shouldInteractWithURL: URL inRange: characterRange];
+    }
+    
+    return true;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldInteractWithTextAttachment:(NSTextAttachment *)textAttachment inRange:(NSRange)characterRange
+{
+    
+    id delegate = [self getPreviousDelegate: textView];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textView: textView shouldInteractWithTextAttachment: textAttachment inRange: characterRange];
+    }
+    
+    return true;
+}
+
+#pragma mark - Text Field Delegate
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textFieldShouldBeginEditing: textField];
+    }
+    
+    return true;
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textFieldDidBeginEditing: textField];
+    }
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textFieldShouldEndEditing: textField];
+    }
+    
+    return true;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        [delegate textFieldDidEndEditing: textField];
+    }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textField: textField shouldChangeCharactersInRange: range replacementString: string];
+    }
+    
+    return true;
+}
+
+- (BOOL)textFieldShouldClear:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textFieldShouldClear: textField];
+    }
+    
+    return true;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    id delegate = [self getPreviousDelegate: textField];
+    
+    if (delegate && [delegate respondsToSelector: _cmd])
+    {
+        return [delegate textFieldShouldReturn: textField];
+    }
+    
+    return true;
 }
 
 @end
